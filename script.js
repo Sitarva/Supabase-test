@@ -64,3 +64,30 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   });
 });
+
+// ---------------------------
+// Helper: Delete file from Supabase Storage
+// ---------------------------
+async function deleteFileFromSupabase(fileName) {
+  const { data, error } = await supabaseClient
+    .storage
+    .from(IMAGES_BUCKET)
+    .remove([fileName]); // expects an array of file paths
+
+  if (error) {
+    console.error("❌ Delete failed:", error);
+    return false;
+  }
+
+  console.log("✅ File deleted:", data);
+  return true;
+}
+
+// ---------------------------
+// Example: attach to delete button
+// ---------------------------
+document.getElementById("deleteBtn")?.addEventListener("click", async () => {
+  const fileName = prompt("Enter the exact file name to delete (e.g. test-1755827754981.png)");
+  if (!fileName) return;
+  await deleteFileFromSupabase(fileName);
+});
