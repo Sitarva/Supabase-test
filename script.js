@@ -9,45 +9,11 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ---------------------------
 // Helper: Upload file to Supabase Storage
 // ---------------------------
-async function uploadFileToSupabase(file) {
-  if (!file) return null;
-
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-
+async function testUpload(file) {
   const { data, error } = await supabaseClient.storage
     .from(IMAGES_BUCKET)
-    .upload(fileName, file);
+    .upload('test-file.png', file);
 
-  if (error) {
-    console.error("Supabase upload error:", error);
-    return null;
-  }
-
-  const { data: urlData, error: urlError } = supabaseClient.storage
-    .from(IMAGES_BUCKET)
-    .getPublicUrl(fileName);
-
-  if (urlError) {
-    console.error("Supabase public URL error:", urlError);
-    return null;
-  }
-
-  return urlData.publicUrl;
+  if (error) return console.error(error);
+  console.log('Upload success', data);
 }
-
-// ---------------------------
-// Test upload button
-// ---------------------------
-document.getElementById("testUploadBtn")?.addEventListener("click", async () => {
-  const fileInput = document.querySelector(".image-upload");
-  if (!fileInput?.files?.[0]) return alert("Select a file first!");
-  
-  const publicUrl = await uploadFileToSupabase(fileInput.files[0]);
-  if (publicUrl) {
-    console.log("✅ Supabase upload successful! URL:", publicUrl);
-    alert(`Test upload done! Check console for URL.`);
-  } else {
-    alert("Upload failed. See console for details.");
-  }
-});
